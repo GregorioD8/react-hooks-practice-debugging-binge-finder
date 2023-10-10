@@ -1,61 +1,62 @@
 import React, { useState } from "react";
-import Episode from "./Components/Episode";
+import Episode from "./Episode";
 
-function SelectedShowContainer(props) {
-  const selectedSeason = useState(1);
+function SelectedShowContainer({show, episodes}) {
+const [epOptions, setEpOptions] = useState(null)
+if (!show) return "no show"
 
-  function mapSeasons() {
-    if (!!props.episodes) {
-      let seasons = props.episodes.map((e) => e.season).unique();
+const seasons = episodes.map((e) => e.season)
+const lastSeason = Math.max(...seasons)
 
-      return seasons.map((s) => {
-        return (
-          <option value={s} key={s}>
-            Season {s}
-          </option>
-        );
-      });
-    }
-  }
-
-  function mapEpisodes() {
-    return props.episodes.map((e) => {
-      if (e.season == selectedSeason) {
-        return <Episode eachEpisode={e} key={e.id} />;
-      }
-    });
-  }
-
-  function handleSelectionChange(e) {
-    selectedSeason = e.target.value;
-  }
-
-  const { selectedShow } = props;
-
-  return (
-    <div style={{ position: "static" }}>
-      <h2>{selectedShow.name}</h2>
-      <img src={selectedShow.image.medium} alt="" />
-      <p dangerouslySetInnerHTML={{ __html: selectedShow.summary }}></p>
-      <p>Premiered: {selectedShow.premiered}</p>
-      <p>Status: {selectedShow.status}</p>
-      <p>Average Rating: {selectedShow.rating.average}</p>
-      <select style={{ display: "block" }} onChange={handleSelectionChange}>
-        {mapSeasons()}
-      </select>
-      {mapEpisodes()}
-    </div>
-  );
+const options = []
+for(let i = 0 ; i< lastSeason ; i++){
+options[i] = i +1
 }
 
-export SelectedShowContainer;
+const optionSeasons = options.map((o) => (
+ <option key={o}>{"Season " + o}</option>
+))
 
-Array.prototype.unique = function () {
-  const arr = [];
-  for (let i = 0; i < this.length; i++) {
-    if (!arr.includes(this[i])) {
-      arr.push(this[i]);
-    }
+function handleChange(e) {
+  e.preventDefault()
+  const selected = e.target.value
+  const number = parseInt(selected.match(/\d+/)[0])
+  const eps = episodes.filter((ep) => ep.season === number)
+  const epO = eps.map((episode) => {
+    return <Episode
+    key={episode.id}
+    myEpisode={episode}
+    />
+  })
+  setEpOptions(epO)
+  
+}
+
+return (
+      <div style={{ position: "static" }}>
+        <h2>{show.name}</h2>
+        <img src={show.image.medium} alt="" />
+        <p dangerouslySetInnerHTML={{ __html: show.summary }}></p>
+        <p>Premiered: {show.premiered}</p>
+        <p>Status: {show.status}</p>
+        <p>Average Rating: {show.rating.average}</p>
+        <ul>
+   
+        </ul>
+        <select 
+        style={{ display: "block" }} 
+        onChange={handleChange}
+        >
+       
+        {optionSeasons}
+        </select>
+        {epOptions}
+        
+      </div>
+    );
   }
-  return arr;
-};
+  
+
+
+export default SelectedShowContainer
+ 
